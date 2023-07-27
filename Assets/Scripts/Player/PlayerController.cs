@@ -33,4 +33,9 @@ public class PlayerController : MonoBehaviour
             rigidbody.velocity = new Vector2(MoveForce, rigidbody.velocity.y);
         }
     }
+
+    public Vector2 GetCurrentPosition()
+    {
+        return transform.position;
+    }
 }
