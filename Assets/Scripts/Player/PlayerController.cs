@@ -6,19 +6,22 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float JumpForce = 6f;
     [SerializeField] private float MoveForce = 2f;
+    [SerializeField] private LayerMask floor;
 
     private Rigidbody2D rb;
+    private BoxCollider2D boxCollider;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();    
+        boxCollider = GetComponent<BoxCollider2D>();    
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && IsOnTheFloor())
         {
             rb.velocity = new Vector2(rb.velocity.x, JumpForce);
         }
@@ -32,6 +35,11 @@ public class PlayerController : MonoBehaviour
         {
             rb.velocity = new Vector2(MoveForce, rb.velocity.y);
         }
+    }
+
+    private bool IsOnTheFloor()
+    {
+        return Physics2D.BoxCast(boxCollider.bounds.center, boxCollider.bounds.size, 0f, Vector2.down, 0.1f, floor);
     }
 
     public Vector2 GetCurrentPosition()
