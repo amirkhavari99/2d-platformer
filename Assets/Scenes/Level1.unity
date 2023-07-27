@@ -731,6 +731,7 @@ GameObject:
   - component: {fileID: 594147987}
   - component: {fileID: 594147986}
   - component: {fileID: 594147988}
+  - component: {fileID: 594147989}
   m_Layer: 0
   m_Name: Ninja
   m_TagString: Untagged
@@ -846,7 +847,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 5
+  m_GravityScale: 4.5
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
@@ -866,9 +867,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   JumpForce: 21
   MoveForce: 7
+  MovingEpsilon: 0.2
   floor:
     serializedVersion: 2
     m_Bits: 64
+--- !u!95 &594147989
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 594147982}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c020591c109db0f40833f24386605f87, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &606137929 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5408303074796915749, guid: 58a98d5e82f2eef4a9f4996cfdd27f4a, type: 3}
