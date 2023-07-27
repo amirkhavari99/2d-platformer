@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float JumpForce = 6f;
-    [SerializeField] private float MoveForce = 2f;
-    [SerializeField] private float MovingEpsilon = 0.1f;
-    [SerializeField] private LayerMask floor;
+    [SerializeField] [Tooltip("The force of the player jumps")] private float JumpForce = 6f;
+    [SerializeField] [Tooltip("The force of the player move in direction X")] private float MoveForce = 2f;
+    [SerializeField] [Tooltip("Moving less than this amount is considered Not Moving")] private float MovingEpsilon = 0.1f;
+    [SerializeField] [Tooltip("The layermask of floors (platforms)")] private LayerMask floor;
 
     private SpriteRenderer sr;
     private Rigidbody2D rb;
     private BoxCollider2D boxCollider;
     private Animator animator;
 
+    private bool finished = false;
+
+    // Possible states of the player character (used same numbers for animation's int parameter)
     private enum PlayerState
     {
         Idle = 0,
@@ -29,39 +32,42 @@ public class PlayerController : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();    
         rb = GetComponent<Rigidbody2D>();    
         boxCollider = GetComponent<BoxCollider2D>();
-        animator = GetComponent<Animator>();    
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && IsOnTheFloor())
+        if (!LevelController.Instance.finished)// ask level controller if moving level is finished
         {
-            rb.velocity = new Vector2(rb.velocity.x, JumpForce);
-        }
+            if (Input.GetButtonDown("Jump") && IsOnTheFloor())
+            {
+                rb.velocity = new Vector2(rb.velocity.x, JumpForce);
+            }
 
-        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
+            float xAxisInput = Input.GetAxisRaw("Horizontal");
+            rb.velocity = new Vector2(MoveForce * xAxisInput, rb.velocity.y);
+
+            UpdateAnimation(xAxisInput);
+        }
+        else if(!finished)// dont want to set the velocity to zero more than once
         {
-            rb.velocity = new Vector2(-MoveForce, rb.velocity.y);
+            rb.velocity = Vector2.zero;
+            UpdateAnimation();
+            finished = true;
         }
-
-        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
-        {
-            rb.velocity = new Vector2(MoveForce, rb.velocity.y);
-        }
-
-        UpdateAnimation();
     }
 
-    private void UpdateAnimation()
+    private void UpdateAnimation(float xAxisInput = 0)
     {
+        // This functions updates the animation state of the player, Jump and Fall have a higher priority
         PlayerState state;
-        if (rb.velocity.x > MovingEpsilon)
+        if (xAxisInput > MovingEpsilon)
         {
             state = PlayerState.Running;
             sr.flipX = false;
         }
-        else if (rb.velocity.x < -MovingEpsilon)
+        else if (xAxisInput < -MovingEpsilon)
         {
             state = PlayerState.Running;
             sr.flipX = true;
@@ -87,7 +93,7 @@ public class PlayerController : MonoBehaviour
     {
         if (currentState != state)
         {
-            Debug.LogError($"Setting Player State to {state}");
+            //Debug.Log($"Setting Player State to {state}");
             animator.SetInteger("playerState", (int)state);
             currentState = state;
         }
@@ -95,11 +101,13 @@ public class PlayerController : MonoBehaviour
 
     private bool IsOnTheFloor()
     {
+        // a boxCast that is a little lower than the main boxCollider of player, indicates whether is standing on a floor or not 
         return Physics2D.BoxCast(boxCollider.bounds.center, boxCollider.bounds.size, 0f, Vector2.down, 0.1f, floor);
     }
 
     public Vector2 GetCurrentPosition()
     {
+        //used for controlling the camera to follow the player
         return transform.position;
     }
 
@@ -107,8 +115,13 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Collectible"))
         {
-            LevelController.Instance.PlayerGotAPoint(1);
-            Destroy(collision.gameObject);
+            // player got a collectible, notice level controller to increase the score
+            LevelController.Instance.PlayerGotACollectible(collision.gameObject);
+        }
+        if (collision.gameObject.CompareTag("Finish"))
+        {
+            // player reached the final checkpoint of the level, notice level controller to finish the level
+            LevelController.Instance.LevelCompleted();
         }
     }
 }

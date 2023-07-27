@@ -8,8 +8,14 @@ public class LevelController : MonoBehaviour
     [SerializeField] private PlayerController player;
     [SerializeField] private Camera mainCamera;
     [SerializeField] Text playerScoreText;
+    [SerializeField] int collectiblePoint;
 
     private int playerScore = 0;
+    public bool finished
+    {
+        get;
+        private set;
+    } = false;
 
     private static LevelController instance = null;
     public static LevelController Instance
@@ -36,12 +42,22 @@ public class LevelController : MonoBehaviour
         return player.GetCurrentPosition();
     }
 
-    public void PlayerGotAPoint(int point)
+    public void PlayerGotACollectible(GameObject collectibleGameObject)
     {
-        if(point > 0)
+        if (collectiblePoint > 0)
         {
-            playerScore += point;
-            playerScoreText.text = $"Score: {playerScore}"; 
+            playerScore += collectiblePoint;
+            playerScoreText.text = $"Score: {playerScore}";
+            Destroy(collectibleGameObject);
+        }
+    }
+
+    public void LevelCompleted()
+    {
+        if (finished == false)
+        {
+            finished = true;
+            Debug.LogError("Finish");
         }
     }
 }
